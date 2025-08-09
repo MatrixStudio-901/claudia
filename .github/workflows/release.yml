@@ -23,12 +23,15 @@ jobs:
   build-macos:
     uses: ./.github/workflows/build-macos.yml
     secrets: inherit
-  
+    
+  build-windows:
+    uses: ./.github/workflows/build-windows.yml
+    secrets: inherit
 
   # Create release after all builds complete
   create-release:
     name: Create Release
-    needs: [build-linux, build-macos]
+    needs: [build-linux, build-macos, build-windows]
     runs-on: ubuntu-latest
     
     steps:
@@ -64,6 +67,12 @@ jobs:
           if [ -d "artifacts/macos-universal" ]; then
             cp artifacts/macos-universal/Claudia.dmg release-assets/Claudia_${{ steps.version.outputs.version }}_macos_universal.dmg || true
             cp artifacts/macos-universal/Claudia.app.zip release-assets/Claudia_${{ steps.version.outputs.version }}_macos_universal.app.tar.gz || true
+          fi
+          
+          # Windows artifacts
+          if [ -d "artifacts/windows-x86_64" ]; then
+            cp artifacts/windows-x86_64/*.exe release-assets/Claudia_${{ steps.version.outputs.version }}_windows_x86_64.exe || true
+            cp artifacts/windows-x86_64/*.msi release-assets/Claudia_${{ steps.version.outputs.version }}_windows_x86_64.msi || true
           fi
           
           # Create source code archives
@@ -107,7 +116,7 @@ jobs:
             ### 🚀 What's New in This First Release
             
             - **AI-Powered Coding**: Seamless integration with Claude for intelligent code assistance
-            - **Cross-Platform Support**: Available for macOS and Linux
+            - **Cross-Platform Support**: Available for Windows, macOS and Linux
             - **Modern UI**: Clean, intuitive interface built with React and Tauri
             - **MCP Support**: Model Context Protocol integration for enhanced capabilities
             - **Session Management**: Save and restore your coding sessions
@@ -115,11 +124,14 @@ jobs:
             
             ### Downloads
             
+            #### Windows
+            - `.exe` - Portable executable (recommended)
+            - `.msi` - Windows installer package
+            
             #### macOS
             - Universal binary (Intel + Apple Silicon)
             - `.dmg` - Disk image installer (recommended)
             - `.app.tar.gz` - Application bundle
-            
 
             #### Linux
             - `.AppImage` - Universal Linux package (recommended)
@@ -131,12 +143,12 @@ jobs:
             
             ### Installation
             
-            **macOS**: Download the `.dmg` file, open it, and drag Claudia to your Applications folder.
+            **Windows**: Download the `.msi` installer and run it, or use the portable `.exe` file.
             
+            **macOS**: Download the `.dmg` file, open it, and drag Claudia to your Applications folder.
 
             **Linux**: Download the `.AppImage` file, make it executable (`chmod +x`), and run it. For Debian/Ubuntu, use the `.deb` file.
             
             ### Verification
             
             All files include `.sha256` signature files for verification.
-            
